@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Management — Finance, Investment & Store Operations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#">
+          <span class="brand-mark">
+            <!-- Wealth / Finance Icon -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </span>
+          <span class="brand-name">Management</span>
+        </a>
+        <p class="nav-label">WORKSPACE</p>
+        <nav class="nav" id="mainNav">
+          <button class="nav-item active" data-page="accounts">
+            <span class="nav-icon">◫</span>
+            <b>My Account</b>
+          </button>
+          <button class="nav-item" data-page="investments">
+            <span class="nav-icon">◈</span>
+            <b>Investment</b>
+          </button>
+          <button class="nav-item" data-page="store">
+            <span class="nav-icon">▦</span>
+            <b>Store Management</b>
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sync-state" id="syncBox" title="พร้อมใช้งานออฟไลน์">
+            <i id="syncDot"></i>
+            <span id="syncText">พร้อมใช้งานออฟไลน์</span>
+          </div>
+          <button class="collapse-btn" id="collapseBtn">← <span>ย่อเมนู</span></button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main">
+        <!-- TOPBAR -->
+        <header class="topbar">
+          <div class="top-left">
+            <button class="icon-btn menu-mobile" id="menuBtn">☰</button>
+            <div>
+              <p class="eyebrow" id="pageEyebrow">PERSONAL FINANCE</p>
+              <h1 id="pageTitle">My Account</h1>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="icon-btn refresh-btn" id="refreshBtn" aria-label="รีเฟรชข้อมูล Google Sheet" title="รีเฟรชข้อมูล Google Sheet">↻</button>
+            <button class="icon-btn" id="themeBtn" aria-label="สลับธีม (Light/Dark)" title="สลับธีม">☾</button>
+            <div class="profile">
+              <span class="avatar">NP</span>
+              <span class="profile-copy">
+                <b>Natthaporn</b>
+                <small>Management Workspace</small>
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <!-- PAGE 1: MY ACCOUNT -->
+        <section class="page active" id="accountsPage">
+          <!-- SUB-TABS -->
+          <div class="module-tabs" id="accountSubTabs">
+            <button class="tab active" data-account-tab="overview">ภาพรวมและรายการธุรกรรม</button>
+            <button class="tab" data-account-tab="budget">งบประมาณรายเดือน (Budget Calculator)</button>
+          </div>
+
+          <!-- TAB 1: OVERVIEW & TRANSACTIONS -->
+          <div id="accountOverviewView">
+            <div class="toolbar">
+              <div class="filters">
+                <select id="accountYear">
+                  <option value="all">ทุกปี</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+                <select id="accountMonth">
+                  <option value="all">ทุกเดือน</option>
+                  <option value="0">มกราคม</option>
+                  <option value="1">กุมภาพันธ์</option>
+                  <option value="2">มีนาคม</option>
+                  <option value="3">เมษายน</option>
+                  <option value="4">พฤษภาคม</option>
+                  <option value="5">มิถุนายน</option>
+                  <option value="6">กรกฎาคม</option>
+                  <option value="7">สิงหาคม</option>
+                  <option value="8">กันยายน</option>
+                  <option value="9">ตุลาคม</option>
+                  <option value="10">พฤศจิกายน</option>
+                  <option value="11">ธันวาคม</option>
+                </select>
+                <button class="filter-date" id="dateFilterBtn">◷ ช่วงวันที่</button>
+              </div>
+              <div class="toolbar-actions">
+                <button class="btn secondary" id="printBtn">⌘ พิมพ์รายงาน</button>
+                <button class="btn secondary" id="exportBtn">⇩ Export CSV</button>
+                <button class="btn primary" data-open-modal="transaction">＋ เพิ่มรายการ</button>
+              </div>
+            </div>
+
+            <!-- DATE RANGE POPUP -->
+            <div class="date-range" id="dateRange">
+              <label>จาก <input type="date" id="dateStart" /></label>
+              <label>ถึง <input type="date" id="dateEnd" /></label>
+              <button class="btn primary small" id="applyDate">ใช้ตัวกรอง</button>
+              <button class="btn secondary small" id="clearDate">ล้างช่วงวันที่</button>
+            </div>
+
+            <!-- OVERVIEW STATS (5 CARDS) -->
+            <div class="stats-grid" id="accountStats"></div>
+
+            <!-- BANK CARDS (9 BANKS) -->
+            <section class="section-head">
+              <div>
+                <h2>บัญชีของฉัน (9 บัญชี)</h2>
+                <p>คลิกที่บัตรเพื่อกรองธุรกรรมตามบัญชีนั้น หรือคลิกแสดงทุกบัญชี</p>
+              </div>
+              <button class="text-btn" id="clearAccount">แสดงทุกบัญชี</button>
+            </section>
+            <div class="bank-grid" id="bankCards"></div>
+
+            <!-- CHARTS GRID -->
+            <div class="charts-grid">
+              <article class="panel chart-panel wide">
+                <div class="panel-head">
+                  <div>
+                    <h3>Cash Flow Trends</h3>
+                    <p>เปรียบเทียบรายรับและรายจ่ายในแต่ละเดือน (Jan-26 / Feb-26)</p>
+                  </div>
+                  <span class="legend">
+                    <i class="income-dot"></i>รายรับ
+                    <i class="expense-dot"></i>รายจ่าย
+                  </span>
+                </div>
+                <canvas id="cashFlowChart"></canvas>
+              </article>
+
+              <article class="panel chart-panel">
+                <div class="panel-head">
+                  <div>
+                    <h3>รายจ่ายตามหมวดหมู่เฉพาะ</h3>
+                    <p>สัดส่วนเปรียบเทียบเฉพาะกลุ่มรายจ่ายสำคัญ (ไม่รวมรายการทั่วไป)</p>
+                  </div>
+                </div>
+                <div class="donut-wrap">
+                  <canvas id="expenseChart"></canvas>
+                  <div class="donut-total">
+                    <small>รวมหมวดหมู่เฉพาะ</small>
+                    <b id="expenseTotal">฿0</b>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <!-- TRANSACTIONS TABLE -->
+            <article class="panel table-panel">
+              <div class="panel-head table-header">
+                <div>
+                  <h2>รายการธุรกรรม</h2>
+                  <p id="transactionMeta">กำลังแสดงรายการ</p>
+                </div>
+                <label class="search">
+                  <span>⌕</span>
+                  <input id="transactionSearch" placeholder="ค้นหารายการ, บัญชี, หมายเหตุ..." />
+                </label>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>วันที่</th>
+                      <th>บัญชีต้นทาง</th>
+                      <th>รายการ</th>
+                      <th>หมวดหมู่</th>
+                      <th>ประเภท</th>
+                      <th>ปลายทาง</th>
+                      <th class="right">จำนวนเงิน</th>
+                      <th class="center">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionRows"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <!-- TAB 2: MONTHLY BUDGET CALCULATOR -->
+          <div id="accountBudgetView" hidden>
+            <section class="section-head calculator-head">
+              <div>
+                <h2>Monthly Budget Calculator</h2>
+                <p>จำลองการหักค่าใช้จ่ายรายเดือน โดยไม่บันทึกข้อมูล พร้อมเพิ่มแถวหักลบได้เอง</p>
+              </div>
+              <button class="btn secondary small" id="addCustomBudgetBtn">＋ เพิ่มรายการหักลบเอง</button>
+            </section>
+
+            <article class="panel budget">
+              <div class="salary-input">
+                <label>
+                  เงินเดือนสุทธิ (บาท)
+                  <input type="number" id="salaryInput" value="20860" min="0" step="100" />
+                </label>
+                <div class="budget-summary-chips">
+                  <div class="budget-chip">
+                    <small>รวมค่าใช้จ่ายที่หัก</small>
+                    <b id="budgetTotalExpense" class="expense-amount">฿0</b>
+                  </div>
+                  <div class="budget-remaining">
+                    <small>ยอดคงเหลือหลังวางแผน</small>
+                    <b id="budgetRemaining">฿0</b>
+                  </div>
+                </div>
+              </div>
+
+              <div class="budget-content">
+                <div class="budget-grid" id="budgetRows"></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- PAGE 2: INVESTMENT MONITOR -->
+        <section class="page" id="investmentsPage">
+          <div class="toolbar">
+            <div class="filters">
+              <select id="investmentYear">
+                <option value="all">ทุกปี</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+              </select>
+              <select id="investmentMonth">
+                <option value="all">ทุกเดือน</option>
+                <option value="0">มกราคม</option>
+                <option value="1">กุมภาพันธ์</option>
+                <option value="2">มีนาคม</option>
+                <option value="3">เมษายน</option>
+                <option value="4">พฤษภาคม</option>
+                <option value="5">มิถุนายน</option>
+                <option value="6">กรกฎาคม</option>
+                <option value="7">สิงหาคม</option>
+                <option value="8">กันยายน</option>
+                <option value="9">ตุลาคม</option>
+                <option value="10">พฤศจิกายน</option>
+                <option value="11">ธันวาคม</option>
+              </select>
+              <button class="filter-date" id="investmentDateBtn">◷ ช่วงวันที่</button>
+              <select id="investmentStatus">
+                <option value="all">ทุกสถานะ</option>
+                <option value="open">ยังไม่ขาย (Open)</option>
+                <option value="closed">ขายแล้ว (Closed)</option>
+              </select>
+            </div>
+            <button class="btn primary" data-open-modal="investment">＋ เพิ่มการลงทุน</button>
+          </div>
+
+          <!-- INVESTMENT DATE RANGE POPUP -->
+          <div class="date-range" id="investmentDateRange">
+            <label>จาก <input type="date" id="invDateStart" /></label>
+            <label>ถึง <input type="date" id="invDateEnd" /></label>
+            <button class="btn primary small" id="applyInvDate">ใช้ตัวกรอง</button>
+            <button class="btn secondary small" id="clearInvDate">ล้างช่วงวันที่</button>
+          </div>
+
+          <!-- INVESTMENT SUMMARY CARDS (อิงข้อมูลจริงปัจจุบัน Sheet NetInvestment) -->
+          <div class="stats-grid investment-stats" id="investmentStats"></div>
+
+          <!-- ASSET ALLOCATION CARDS (เปลี่ยนจากกราฟเป็นการ์ด พร้อมแสดง % สัดส่วนที่มุมขวาบน) -->
+          <section class="section-head compact">
+            <div>
+              <h2>สัดส่วนพอร์ตการลงทุน</h2>
+              <p>แสดงมูลค่าและสัดส่วน % เทียบยอดจากพอร์ตทั้งหมดที่มุมขวาบนของการ์ด (คลิกการ์ดเพื่อดูตารางสินทรัพย์นั้น)</p>
+            </div>
+          </section>
+          <div class="asset-cards-grid" id="assetCardsGrid"></div>
+
+          <!-- ASSET SUB-TABS -->
+          <div class="tabs" id="investmentTabs"></div>
+
+          <!-- INVESTMENT DATA TABLE -->
+          <article class="panel table-panel">
+            <div class="panel-head">
+              <div>
+                <h2 id="investmentTableTitle">Gold Now</h2>
+                <p>ข้อมูลการลงทุนจาก Sheet Investment</p>
+              </div>
+              <span class="badge success">Live portfolio</span>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead id="investmentTableHead"></thead>
+                <tbody id="investmentRows"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <!-- PAGE 3: STORE MANAGEMENT -->
+        <section class="page" id="storePage">
+          <!-- STORE SUB-TABS -->
+          <div class="store-tabs" id="storeTabs">
+            <button class="tab active" data-store-tab="calculator">1. คำนวณเพื่อผลิต (Store Calculator)</button>
+            <button class="tab" data-store-tab="manage">2. บริหารจัดการ (Store Operations)</button>
+          </div>
+
+          <!-- SECTION 1: CALCULATOR -->
+          <div id="storeCalculator">
+            <!-- INVENTORY CALCULATOR -->
+            <article class="panel mb-16">
+              <div class="panel-head">
+                <div>
+                  <h2>Inventory Calculator</h2>
+                  <p>เลือกบรรจุภัณฑ์ ตรวจสอบยอดผลิตล่าสุด และคำนวณจำนวนที่ต้องการผลิตเพิ่ม (จำลองการคำนวณโดยไม่บันทึกข้อมูล)</p>
+                </div>
+                <div class="flex-row">
+                  <label class="inline-label">
+                    บรรจุภัณฑ์:
+                    <select id="invCalcPackage">
+                      <option value="ขวด">ขวด</option>
+                      <option value="แก้ว">แก้ว</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div class="table-scroll" style="max-height: 240px">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ชื่อเมนู</th>
+                      <th>บรรจุภัณฑ์</th>
+                      <th class="right">ผลิตรอบล่าสุด</th>
+                      <th class="right">จำนวนคงเหลือ (กรอก)</th>
+                      <th class="right">ต้องการผลิตเพิ่ม</th>
+                      <th class="right">รวมผลิตทั้งหมด</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invCalcRows"></tbody>
+                </table>
+              </div>
+            </article>
+
+            <!-- DYNAMIC RECIPE & BATCH CALCULATOR CONTROLS -->
+            <div class="recipe-controls panel">
+              <div class="control-col">
+                <label>
+                  บรรจุภัณฑ์
+                  <select id="packageSelect"></select>
+                </label>
+                <label>
+                  ชื่อเมนู
+                  <select id="recipeSelect"></select>
+                </label>
+              </div>
+              <div class="control-col">
+                <label>
+                  จำนวนที่ต้องการผลิต (ขวด/แก้ว)
+                  <input type="number" id="batchQty" value="30" min="1" />
+                </label>
+                <label>
+                  ราคาขายต่อหน่วย (บาท)
+                  <input type="number" id="sellingPrice" value="25" min="0" step="1" />
+                </label>
+              </div>
+            </div>
+
+            <!-- 5 SUMMARY STATS -->
+            <div class="stats-grid" id="recipeStats"></div>
+
+            <!-- BOM INGREDIENTS TABLE & COST DONUT -->
+            <div class="charts-grid">
+              <article class="panel table-panel wide">
+                <div class="panel-head">
+                  <div>
+                    <h2>BOM วัตถุดิบสำหรับ Batch นี้</h2>
+                    <p>คำนวณอัตโนมัติตามสูตรที่เลือกและจำนวนผลิต</p>
+                  </div>
+                  <span class="badge neutral" id="recipeUnit">30 ขวด</span>
+                </div>
+                <div class="table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>วัตถุดิบ</th>
+                        <th>หมวดหมู่</th>
+                        <th class="right">ใช้ต่อหน่วย</th>
+                        <th class="right">ต้องใช้ทั้งหมดใน Batch</th>
+                        <th class="right">ต้นทุนต่อหน่วย</th>
+                        <th class="right">ต้นทุนรวมใน Batch</th>
+                      </tr>
+                    </thead>
+                    <tbody id="bomRows"></tbody>
+                  </table>
+                </div>
+              </article>
+
+              <article class="panel chart-panel">
+                <div class="panel-head">
+                  <div>
+                    <h3>สัดส่วนต้นทุนวัตถุดิบ</h3>
+                    <p>แบ่งตาม 4 หมวดหมู่หลัก (%)</p>
+                  </div>
+                </div>
+                <div class="donut-wrap">
+                  <canvas id="costChart"></canvas>
+                  <div class="donut-total">
+                    <small>ต้นทุนรวม Batch</small>
+                    <b id="costTotal">฿0</b>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <!-- MENU PROFIT CARDS (วางถัดจากตาราง BOM ตาม Comment) -->
+            <section class="section-head compact">
+              <div>
+                <h2>ต้นทุนและกำไรของแต่ละเมนู</h2>
+                <p>อิงจากสูตร BOM ของบรรจุภัณฑ์ที่เลือก (คลิกการ์ดเพื่อสลับดูสูตรของเมนูนั้นทันที)</p>
+              </div>
+            </section>
+            <div class="menu-profit-grid" id="menuProfitCards"></div>
+
+            <!-- COST TABLE & TRENDS -->
+            <article class="panel table-panel">
+              <div class="panel-head table-header">
+                <div>
+                  <h2>Cost Table (ตารางต้นทุนวัตถุดิบ)</h2>
+                  <p>สามารถกดแก้ไขราคารวมล่าสุดเพื่อดู % เปลี่ยนแปลง และบันทึกประวัติลงชีต "แนวโน้มราคา"</p>
+                </div>
+                <button class="btn secondary small" id="viewPriceTrendsBtn">📜 ประวัติแนวโน้มราคา</button>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>วัตถุดิบ</th>
+                      <th>หมวดหมู่</th>
+                      <th class="right">ปริมาณ</th>
+                      <th class="right">หน่วย</th>
+                      <th class="right">ราคารวมล่าสุด</th>
+                      <th class="center">เปลี่ยนจากเดิม (%)</th>
+                      <th class="right">ต้นทุน/หน่วย</th>
+                      <th class="center">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="costRows"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+
+          <!-- SECTION 2: MANAGEMENT (DASHBOARD & INVENTORY FROM STORE-1) -->
+          <div id="storeManage" hidden>
+            <!-- MANAGEMENT TOOLBAR -->
+            <div class="toolbar">
+              <div class="filters">
+                <select id="storeYear">
+                  <option value="all">ทุกปี</option>
+                  <option value="2026">2026</option>
+                  <option value="2025">2025</option>
+                  <option value="2024">2024</option>
+                </select>
+                <select id="storeMonth">
+                  <option value="all">ทุกเดือน</option>
+                  <option value="0">มกราคม</option>
+                  <option value="1">กุมภาพันธ์</option>
+                  <option value="2">มีนาคม</option>
+                  <option value="3">เมษายน</option>
+                  <option value="4">พฤษภาคม</option>
+                  <option value="5">มิถุนายน</option>
+                  <option value="6">กรกฎาคม</option>
+                  <option value="7">สิงหาคม</option>
+                  <option value="8">กันยายน</option>
+                  <option value="9">ตุลาคม</option>
+                  <option value="10">พฤศจิกายน</option>
+                  <option value="11">ธันวาคม</option>
+                </select>
+                <button class="filter-date" id="storeDateFilterBtn">◷ ช่วงวันที่</button>
+              </div>
+              <div class="toolbar-actions">
+                <button class="btn primary" id="addStoreInventoryBtn">＋ เพิ่มรายการใน Inventory</button>
+              </div>
+            </div>
+
+            <!-- STORE DATE RANGE POPUP -->
+            <div class="date-range" id="storeDateRange">
+              <label>จาก <input type="date" id="storeDateStart" /></label>
+              <label>ถึง <input type="date" id="storeDateEnd" /></label>
+              <button class="btn primary small" id="storeApplyDate">ใช้ตัวกรอง</button>
+              <button class="btn secondary small" id="storeClearDate">ล้างช่วงวันที่</button>
+            </div>
+
+            <!-- DASHBOARD STAT CARDS -->
+            <div class="stats-grid" id="storeStats"></div>
+
+            <!-- DAILY PRODUCTION BAR CHART -->
+            <article class="panel chart-panel" style="min-height: 360px">
+              <div class="panel-head">
+                <div>
+                  <h2>ปริมาณผลิตรวมรายวัน</h2>
+                  <p>แสดงตัวเลขปริมาณผลิตรวมบนแท่งกราฟ — คลิกที่แท่งกราฟเพื่อดูเมนูที่ผลิตในวันนั้น</p>
+                </div>
+                <span class="badge neutral" id="chartClickHint">คลิกแท่งเพื่อดูรายละเอียด</span>
+              </div>
+              <canvas id="productionChart"></canvas>
+            </article>
+
+            <!-- HORIZONTAL MENU CARDS FOR CLICKED PRODUCTION DAY -->
+            <div class="production-day-section" id="productionDaySection">
+              <div class="section-head compact">
+                <div>
+                  <h3 id="productionDayTitle">รายการเมนูที่ผลิตในวันที่เลือก</h3>
+                  <p id="productionDaySubtitle">คลิกแท่งกราฟด้านบนเพื่อดูข้อมูลของแต่ละวัน</p>
+                </div>
+              </div>
+              <div class="production-day-cards" id="productionDayCards"></div>
+            </div>
+
+            <!-- INVENTORY TABLE (FROM SHEET STORE-1 CRUD) -->
+            <article class="panel table-panel">
+              <div class="panel-head table-header">
+                <div>
+                  <h2>Inventory (ตารางรายการจาก Sheet Store-1)</h2>
+                  <p id="storeInventoryMeta">ข้อมูลการผลิตและสต็อกจริงจาก Sheet Store-1 เชื่อมต่อ Real-time สามารถแก้ไขหรือลบได้</p>
+                </div>
+                <label class="search">
+                  <span>⌕</span>
+                  <input id="storeInventorySearch" placeholder="ค้นหาเมนู, บรรจุภัณฑ์..." />
+                </label>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>วันที่</th>
+                      <th>ชื่อเมนู</th>
+                      <th>ประเภทบรรจุภัณฑ์</th>
+                      <th class="right">ผลิต (หน่วย)</th>
+                      <th class="right">คาดการณ์สูญเสีย</th>
+                      <th class="right">คาดการณ์ยอดขาย</th>
+                      <th class="right">สูญเสีย</th>
+                      <th class="center">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="storeInventoryRows"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- MODAL 1: UNIVERSAL RECORD FORM (TRANSACTION, INVESTMENT, STORE INVENTORY) -->
+    <div class="modal-backdrop" id="modal">
+      <form class="modal" id="entryForm">
+        <div class="modal-head">
+          <div>
+            <p class="eyebrow" id="modalEyebrow">RECORD</p>
+            <h2 id="modalTitle">เพิ่มรายการ</h2>
+          </div>
+          <button type="button" class="icon-btn" id="closeModal">×</button>
+        </div>
+        <div class="form-grid" id="modalFields"></div>
+        <div class="modal-actions">
+          <button class="btn secondary" type="button" id="cancelModal">ยกเลิก</button>
+          <button class="btn primary" type="submit" id="saveModalBtn">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MODAL 2: COST PRICE EDIT MODAL -->
+    <div class="modal-backdrop" id="costModal">
+      <form class="modal" id="costForm" style="max-width: 480px">
+        <div class="modal-head">
+          <div>
+            <p class="eyebrow">UPDATE COST PRICE</p>
+            <h2 id="costItemName">แก้ไขราคาวัตถุดิบ</h2>
+          </div>
+          <button type="button" class="icon-btn" id="closeCostModal">×</button>
+        </div>
+        <div class="cost-edit-body">
+          <div class="cost-detail-row">
+            <span>หมวดหมู่:</span>
+            <b id="costCategory">-</b>
+          </div>
+          <div class="cost-detail-row">
+            <span>ปริมาณบรรจุ:</span>
+            <b id="costQtyUnit">-</b>
+          </div>
+          <div class="cost-detail-row">
+            <span>ราคาเดิม:</span>
+            <b id="costOldPrice">-</b>
+          </div>
+          <div class="cost-detail-row">
+            <span>ต้นทุนเดิมต่อหน่วย:</span>
+            <b id="costOldUnitCost">-</b>
+          </div>
+
+          <label class="cost-input-label">
+            ราคาใหม่ล่าสุด (บาท)
+            <input type="number" id="costNewPrice" step="0.5" min="0" required />
+          </label>
+
+          <div class="cost-preview-box">
+            <div class="preview-item">
+              <small>ส่วนต่างราคา</small>
+              <b id="costDiffPrice">฿0</b>
+            </div>
+            <div class="preview-item">
+              <small>% ที่เปลี่ยนแปลง</small>
+              <b id="costPctChange">0.0%</b>
+            </div>
+            <div class="preview-item">
+              <small>ต้นทุนใหม่/หน่วย</small>
+              <b id="costNewUnitCost">฿0</b>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn secondary" type="button" id="cancelCostModal">ยกเลิก</button>
+          <button class="btn primary" type="submit">บันทึกราคาและบันทึกประวัติ</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MODAL 3: PRICE TRENDS HISTORY MODAL -->
+    <div class="modal-backdrop" id="trendModal">
+      <div class="modal" style="max-width: 760px">
+        <div class="modal-head">
+          <div>
+            <p class="eyebrow">HISTORY</p>
+            <h2>ประวัติการเปลี่ยนแปลงราคา (แนวโน้มราคา)</h2>
+          </div>
+          <button type="button" class="icon-btn" id="closeTrendModal">×</button>
+        </div>
+        <div class="table-scroll" style="max-height: 380px; margin: 18px 0">
+          <table>
+            <thead>
+              <tr>
+                <th>วันที่บันทึก</th>
+                <th>วัตถุดิบ</th>
+                <th>หมวดหมู่</th>
+                <th class="right">ราคาเดิม</th>
+                <th class="right">ราคาใหม่</th>
+                <th class="center">% เปลี่ยนแปลง</th>
+                <th class="right">ต้นทุนใหม่/หน่วย</th>
+              </tr>
+            </thead>
+            <tbody id="trendRows"></tbody>
+          </table>
+        </div>
+        <div class="modal-actions">
+          <button class="btn secondary" type="button" id="cancelTrendModal">ปิด</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+    <script src="sync.js"></script>
+  </body>
+</html>
